@@ -1,93 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:padding="16dp"
+    tools:context=".MainActivity">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent">
 
-        <!-- Spinner para seleccionar el motor -->
-        <Spinner
-            android:id="@+id/spinner_engine"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/engine_options" />
-
-        <!-- Botón para seleccionar modelo YOLO (visible en modos YOLO y Collage) -->
-        <Button
-            android:id="@+id/btn_select_yolo_model"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Seleccionar Modelo YOLO"
-            android:visibility="gone" />
-
-        <!-- Botón para seleccionar imagen para YOLO, Paddle, MLKit -->
-        <Button
-            android:id="@+id/btn_select_image_yolo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Seleccionar Imagen"
-            android:visibility="gone" />
-
-        <!-- Contenedor para selección de imágenes en modo Collage -->
         <LinearLayout
-            android:id="@+id/layout_collage"
-            android:layout_width="match_parent"
+            android:id="@+id/v_input_info"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:visibility="gone"
-            android:layout_marginTop="8dp">
-            <Button
-                android:id="@+id/btn_select_image1"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+            android:layout_alignParentTop="true"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/btn_layout"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="Imagen 1" />
-            <Button
-                android:id="@+id/btn_select_image2"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:orientation="horizontal">
+
+
+                <Button
+                    android:id="@+id/btn_run_model"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:onClick="btn_run_model_click"
+                    android:text="Run Model" />
+
+                <Button
+                    android:id="@+id/btn_choice_img"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:onClick="btn_choice_img_click"
+                    android:text="Choose Image" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/run_mode_layout"
+                android:layout_width="fill_parent"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
                 android:layout_height="wrap_content"
-                android:text="Imagen 2" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:text="Operating" />
+
+                <Spinner
+                    android:id="@+id/sp_run_mode"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.5"
+                    android:entries="@array/run_Model" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_input_setting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="5dp"
+                android:lineSpacingExtra="4dp"
+                android:maxLines="6"
+                android:scrollbars="vertical"
+                android:singleLine="false"
+                android:text="" />
+
+            <TextView
+                android:id="@+id/tv_model_img_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-5dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="5dp"
+                android:lineSpacingExtra="4dp"
+                android:maxLines="6"
+                android:scrollbars="vertical"
+                android:singleLine="false"
+                android:text="STATUS: ok" />
+
         </LinearLayout>
 
-        <!-- Botón para ejecutar la acción -->
-        <Button
-            android:id="@+id/btn_run_inference"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Ejecutar"
-            android:enabled="false"
-            android:layout_marginTop="8dp" />
+            android:layout_height="match_parent"
+            android:layout_above="@+id/v_output_info"
+            android:layout_below="@+id/v_input_info">
 
-        <!-- ImageView para mostrar la imagen, collage o resultados -->
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:scaleType="fitCenter"
-            android:background="#EEE"
-            android:layout_marginTop="8dp" />
+            <ImageView
+                android:id="@+id/iv_input_image"
+                android:layout_width="400dp"
+                android:layout_height="400dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter" />
+        </RelativeLayout>
 
-        <!-- Área para mostrar el output con fondo negro y texto blanco -->
-        <ScrollView
-            android:layout_width="match_parent"
+
+        <RelativeLayout
+            android:id="@+id/v_output_info"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#000000"
-            android:padding="8dp"
-            android:layout_marginTop="8dp">
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true">
+
             <TextView
-                android:id="@+id/tv_results"
-                android:layout_width="match_parent"
+                android:id="@+id/tv_output_result"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Output"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp" />
-        </ScrollView>
-    </LinearLayout>
-</ScrollView>
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="5dp"
+                android:lineSpacingExtra="5dp"
+                android:maxLines="5"
+                android:scrollbars="vertical"
+                android:singleLine="false"
+                android:text=""
+                android:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/tv_inference_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_output_result"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="10dp"
+                android:text=""
+                android:textAlignment="center" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
