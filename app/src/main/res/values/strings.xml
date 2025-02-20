@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">ocr_sbw</string>
+    <string-array name="engine_options">
+        <item>YOLO</item>
+        <item>Paddle</item>
+        <item>MLKit</item>
+        <item>Collage</item>
+    </string-array>
+</resources>

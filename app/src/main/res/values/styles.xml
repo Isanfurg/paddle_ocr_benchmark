@@ -1,0 +1,12 @@
+<!-- res/values/styles.xml -->
+<resources>
+
+    <!-- Define tu estilo personalizado -->
+    <style name="Theme.TestOcrSbw" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Aquí puedes agregar propiedades del tema, por ejemplo: -->
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="android:windowSplashScreenBackground">@color/white</item>
+        <!-- etc... -->
+    </style>
+
+</resources>

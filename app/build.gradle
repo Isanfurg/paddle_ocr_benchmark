@@ -1,0 +1,47 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    compileSdkVersion 33
+
+    defaultConfig {
+        applicationId "com.example.test_ocr_sbw"
+        minSdkVersion 21
+        targetSdkVersion 33
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+}
+
+dependencies {
+    // TensorFlow Lite (básico) + TFLite Support para YOLO
+    implementation 'org.tensorflow:tensorflow-lite:2.9.0'
+    implementation("org.tensorflow:tensorflow-lite-metadata:0.4.4")
+    //implementation("org.tensorflow:tensorflow-lite:2.16.1")
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
+
+    implementation("org.tensorflow:tensorflow-lite-gpu-delegate-plugin:0.4.4")
+
+    implementation("org.tensorflow:tensorflow-lite-select-tf-ops:2.16.1")
+
+    implementation("org.tensorflow:tensorflow-lite-metadata:0.4.4")
+
+
+    // MLKit OCR
+    implementation 'com.google.mlkit:text-recognition:16.0.0'
+
+    // DocumentFile (si usaras SAF para algo)
+    implementation 'androidx.documentfile:documentfile:1.0.1'
+
+    // Librerías base de AndroidX
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.8.0'
+
+}
