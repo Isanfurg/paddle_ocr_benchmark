@@ -59,3 +59,4 @@ com_crashlytics_export_strings.xml
 # Archivos de sistema (macOS, Linux, Windows)
 .DS_Store
 Thumbs.db
+/app/.cxx/Debug/*
