@@ -1,37 +1,25 @@
 package com.example.test_ocr_sbw.ocr;
 
 public class OcrResult {
-    private String fileName;
-    private String recognizedText;
-    private long executionTimeMillis;
-    private float confidenceAverage;
+    private String text;
+    private float confidence;
+    private long processingTime; // en ms
 
-    public OcrResult(String fileName, String recognizedText, long executionTimeMillis, float confidenceAverage) {
-        this.fileName = fileName;
-        this.recognizedText = recognizedText;
-        this.executionTimeMillis = executionTimeMillis;
-        this.confidenceAverage = confidenceAverage;
+    public OcrResult(String text, float confidence, long processingTime) {
+        this.text = text;
+        this.confidence = confidence;
+        this.processingTime = processingTime;
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getText() {
+        return text;
     }
 
-    public String getRecognizedText() {
-        return recognizedText;
+    public float getConfidence() {
+        return confidence;
     }
 
-    public long getExecutionTimeMillis() {
-        return executionTimeMillis;
-    }
-
-    public float getConfidenceAverage() {
-        return confidenceAverage;
-    }
-
-    // Si quieres, un método para filtrar caracteres no alfanuméricos:
-    public String getAlphanumericText() {
-        // Mantiene [a-zA-Z0-9 y espacios]
-        return recognizedText.replaceAll("[^a-zA-Z0-9 ]", "");
+    public long getProcessingTime() {
+        return processingTime;
     }
 }

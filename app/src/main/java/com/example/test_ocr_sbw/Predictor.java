@@ -2,18 +2,12 @@ package com.example.test_ocr_sbw;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.Point;
 import android.util.Log;
 
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Vector;
 
 public class Predictor {
@@ -27,15 +21,21 @@ public class Predictor {
     public String modelName = "";
     protected OCRPredictorNative paddlePredictor = null;
     protected float inferenceTime = 0;
-    // Only for object detection
-    protected Vector<String> wordLabels = new Vector<String>();
+    // Sólo para detección de objetos
+    protected Vector<String> wordLabels = new Vector<>();
     protected int detLongSize = 960;
     protected float scoreThreshold = 0.1f;
     protected Bitmap inputImage = null;
-    protected Bitmap outputImage = null;
+    // Ya no se utiliza outputImage, pues no se dibuja el resultado
     protected volatile String outputResult = "";
     protected float postprocessTime = 0;
 
+    // Clase que encapsula el resultado de la predicción
+    public static class PredictionResult {
+        public String ocr;                       // Texto OCR concatenado
+        public float inferenceTime;              // Tiempo de inferencia en ms
+        public ArrayList<OcrResultModel> details; // Lista de resultados detallados (cada uno con su confianza)
+    }
 
     public Predictor() {
     }
@@ -49,7 +49,6 @@ public class Predictor {
         return isLoaded;
     }
 
-
     public boolean init(Context appCtx, String modelPath, String labelPath, int useOpencl, int cpuThreadNum, String cpuPowerMode,
                         int detLongSize, float scoreThreshold) {
         boolean isLoaded = init(appCtx, modelPath, labelPath, useOpencl, cpuThreadNum, cpuPowerMode);
@@ -62,17 +61,16 @@ public class Predictor {
     }
 
     protected boolean loadModel(Context appCtx, String modelPath, int useOpencl, int cpuThreadNum, String cpuPowerMode) {
-        // Release model if exists
+        // Liberar modelo si existe
         releaseModel();
 
-        // Load model
+        // Cargar modelo
         if (modelPath.isEmpty()) {
             return false;
         }
         String realPath = modelPath;
         if (!modelPath.substring(0, 1).equals("/")) {
-            // Read model files from custom path if the first character of mode path is '/'
-            // otherwise copy model to cache from assets
+            // Se copia el modelo desde assets al directorio cache
             realPath = appCtx.getCacheDir() + "/" + modelPath;
             Utils.copyDirectoryFromAssets(appCtx, modelPath, realPath);
         }
@@ -87,7 +85,7 @@ public class Predictor {
         config.detModelFilename = realPath + File.separator + "det_db.nb";
         config.recModelFilename = realPath + File.separator + "rec_crnn.nb";
         config.clsModelFilename = realPath + File.separator + "cls.nb";
-        Log.i("Predictor", "model path" + config.detModelFilename + " ; " + config.recModelFilename + ";" + config.clsModelFilename);
+        Log.i("Predictor", "model path: " + config.detModelFilename + " ; " + config.recModelFilename + " ; " + config.clsModelFilename);
         paddlePredictor = new OCRPredictorNative(config);
 
         this.cpuThreadNum = cpuThreadNum;
@@ -112,7 +110,6 @@ public class Predictor {
     protected boolean loadLabel(Context appCtx, String labelPath) {
         wordLabels.clear();
         wordLabels.add("black");
-        // Load word labels from file
         try {
             InputStream assetsInputStream = appCtx.getAssets().open(labelPath);
             int available = assetsInputStream.available();
@@ -133,28 +130,55 @@ public class Predictor {
         return true;
     }
 
-
-    public boolean runModel(int run_det, int run_cls, int run_rec) {
+    /**
+     * Ejecuta el modelo de forma sincrónicpa y retorna un objeto PredictionResult.
+     * Se utilizan por defecto detección (run_det=1) y reconocimiento (run_rec=1),
+     * mientras que la clasificación se omite (run_cls=0).
+     *
+     * @return PredictionResult con:
+     *         - Texto OCR concatenado.
+     *         - Tiempo de inferencia en ms.
+     *         - Detalles de cada resultado (con confianza).
+     * @throws Exception si la imagen de entrada es nula o el modelo no está cargado.
+     */
+    public PredictionResult runModelSync() throws Exception {
+        // Valores por defecto: detección = 1, clasificación = 0, reconocimiento = 1.
+        int run_det = 1;
+        int run_cls = 0;
+        int run_rec = 1;
         if (inputImage == null || !isLoaded()) {
-            return false;
+            throw new Exception("Modelo no cargado o imagen de entrada nula");
         }
 
         // Warm up
         for (int i = 0; i < warmupIterNum; i++) {
             paddlePredictor.runImage(inputImage, detLongSize, run_det, run_cls, run_rec);
         }
-        warmupIterNum = 0; // do not need warm
-        // Run inference
+        warmupIterNum = 0;
+
+        // Ejecutar inferencia
         Date start = new Date();
         ArrayList<OcrResultModel> results = paddlePredictor.runImage(inputImage, detLongSize, run_det, run_cls, run_rec);
         Date end = new Date();
         inferenceTime = (end.getTime() - start.getTime()) / (float) inferIterNum;
 
+        // Postprocesamiento
         results = postprocess(results);
-        Log.i(TAG, "[stat] Inference Time: " + inferenceTime + " ;Box Size " + results.size());
-        drawResults(results);
+        // Ya no se llama a drawResults ya que no se quiere dibujar el resultado
 
-        return true;
+        // Concatenar el texto OCR de todos los resultados
+        StringBuilder ocrSb = new StringBuilder();
+        for (OcrResultModel result : results) {
+            if (result.getLabel() != null && !result.getLabel().isEmpty()) {
+                ocrSb.append(result.getLabel()).append(" ");
+            }
+        }
+
+        PredictionResult predictionResult = new PredictionResult();
+        predictionResult.ocr = ocrSb.toString().trim();
+        predictionResult.inferenceTime = inferenceTime;
+        predictionResult.details = results;
+        return predictionResult;
     }
 
     public boolean isLoaded() {
@@ -185,10 +209,6 @@ public class Predictor {
         return inputImage;
     }
 
-    public Bitmap outputImage() {
-        return outputImage;
-    }
-
     public String outputResult() {
         return outputResult;
     }
@@ -196,7 +216,6 @@ public class Predictor {
     public float postprocessTime() {
         return postprocessTime;
     }
-
 
     public void setInputImage(Bitmap image) {
         if (image == null) {
@@ -221,56 +240,4 @@ public class Predictor {
         }
         return results;
     }
-
-    private void drawResults(ArrayList<OcrResultModel> results) {
-        StringBuffer outputResultSb = new StringBuffer("");
-        for (int i = 0; i < results.size(); i++) {
-            OcrResultModel result = results.get(i);
-            StringBuilder sb = new StringBuilder("");
-            if(result.getPoints().size()>0){
-                sb.append("Det: ");
-                for (Point p : result.getPoints()) {
-                    sb.append("(").append(p.x).append(",").append(p.y).append(") ");
-                }
-            }
-            if(result.getLabel().length() > 0){
-                sb.append("\n Rec: ").append(result.getLabel());
-                sb.append(",").append(result.getConfidence());
-            }
-            if(result.getClsIdx()!=-1){
-                sb.append(" Cls: ").append(result.getClsLabel());
-                sb.append(",").append(result.getClsConfidence());
-            }
-            Log.i(TAG, sb.toString()); // show LOG in Logcat panel
-            outputResultSb.append(i + 1).append(": ").append(sb.toString()).append("\n");
-        }
-        outputResult = outputResultSb.toString();
-        outputImage = inputImage;
-        Canvas canvas = new Canvas(outputImage);
-        Paint paintFillAlpha = new Paint();
-        paintFillAlpha.setStyle(Paint.Style.FILL);
-        paintFillAlpha.setColor(Color.parseColor("#3B85F5"));
-        paintFillAlpha.setAlpha(50);
-
-        Paint paint = new Paint();
-        paint.setColor(Color.parseColor("#3B85F5"));
-        paint.setStrokeWidth(5);
-        paint.setStyle(Paint.Style.STROKE);
-
-        for (OcrResultModel result : results) {
-            Path path = new Path();
-            List<Point> points = result.getPoints();
-            if(points.size()==0){
-                continue;
-            }
-            path.moveTo(points.get(0).x, points.get(0).y);
-            for (int i = points.size() - 1; i >= 0; i--) {
-                Point p = points.get(i);
-                path.lineTo(p.x, p.y);
-            }
-            canvas.drawPath(path, paint);
-            canvas.drawPath(path, paintFillAlpha);
-        }
-    }
-
 }

@@ -15,9 +15,6 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
-/**
- * Helper para MLKit OCR: versión asíncrona y bloqueante.
- */
 public class MlKitOcrHelper {
 
     public interface OcrCallback {
@@ -25,9 +22,6 @@ public class MlKitOcrHelper {
         void onError(Exception e);
     }
 
-    /**
-     * Versión asíncrona.
-     */
     public void runOcr(Bitmap bitmap, OcrCallback callback) {
         if (bitmap == null) {
             if (callback != null) {
@@ -36,20 +30,17 @@ public class MlKitOcrHelper {
             return;
         }
         InputImage image = InputImage.fromBitmap(bitmap, 0);
-
         long startTime = System.currentTimeMillis();
         TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
                 .process(image)
                 .addOnSuccessListener(new OnSuccessListener<Text>() {
                     @Override
                     public void onSuccess(Text visionText) {
-                        long endTime = System.currentTimeMillis();
-                        Log.d("MlKitOcrHelper", "MLKit OCR took: " + (endTime - startTime) + " ms");
-
+                        long elapsed = System.currentTimeMillis() - startTime;
                         String recognizedText = visionText.getText();
-                        float confidence = -1; // MLKit no provee la confianza
+                        recognizedText = recognizedText.replaceAll("[^A-Za-z0-9]", "");
                         if (callback != null) {
-                            callback.onSuccess(recognizedText, confidence);
+                            callback.onSuccess(recognizedText, -1.0f);
                         }
                     }
                 })
@@ -63,31 +54,27 @@ public class MlKitOcrHelper {
                 });
     }
 
-    /**
-     * Versión bloqueante usando CountDownLatch.
-     */
-    public String runBlockingOcr(Bitmap bitmap) {
-        final AtomicReference<String> textRef = new AtomicReference<>("");
+    public OcrResult runOcrSync(Bitmap bitmap) {
+        final AtomicReference<OcrResult> resultRef = new AtomicReference<>(new OcrResult("", -1.0f, 0));
         final CountDownLatch latch = new CountDownLatch(1);
-
+        long startTime = System.currentTimeMillis();
         runOcr(bitmap, new OcrCallback() {
             @Override
             public void onSuccess(String recognizedText, float confidence) {
-                textRef.set(recognizedText);
+                long elapsed = System.currentTimeMillis() - startTime;
+                resultRef.set(new OcrResult(recognizedText, confidence, elapsed));
                 latch.countDown();
             }
-
             @Override
             public void onError(Exception e) {
                 latch.countDown();
             }
         });
-
         try {
             latch.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return textRef.get();
+        return resultRef.get();
     }
 }

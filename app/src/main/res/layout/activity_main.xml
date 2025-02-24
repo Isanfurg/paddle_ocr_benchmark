@@ -1,142 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <LinearLayout
+    <Button
+        android:id="@+id/btn_select_folder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:text="Seleccionar Carpeta" />
 
-        <!-- Spinner para seleccionar el motor -->
-        <Spinner
-            android:id="@+id/spinner_engine"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:entries="@array/engine_options" />
+    <Button
+        android:id="@+id/btn_process_folder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Procesar Carpeta" />
 
-        <!-- Botón para seleccionar modelo YOLO (visible en modos YOLO y Collage) -->
-        <Button
-            android:id="@+id/btn_select_yolo_model"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Seleccionar Modelo YOLO"
-            android:visibility="gone" />
-
-        <!-- Botón para seleccionar imagen para YOLO, Paddle, MLKit -->
-        <Button
-            android:id="@+id/btn_select_image_yolo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Seleccionar Imagen"
-            android:visibility="gone" />
-
-        <!-- Contenedor para selección de imágenes en modo Collage -->
-        <LinearLayout
-            android:id="@+id/layout_collage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:orientation="horizontal"
-            android:visibility="gone">
-
-            <Button
-                android:id="@+id/btn_select_image1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Imagen 1" />
-
-            <Button
-                android:id="@+id/btn_select_image2"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Imagen 2" />
-        </LinearLayout>
-
-        <!-- Botón para ejecutar la acción -->
-        <Button
-            android:id="@+id/btn_run_inference"
-            android:layout_width="match_parent"
-            android:layout_marginBottom="8dp"
-            android:layout_height="wrap_content"
-            android:enabled="false"
-            android:text="Ejecutar" />
-
-        <LinearLayout
-            android:id="@+id/run_mode_layout"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:orientation="horizontal"
-            android:visibility="gone">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:text="Operating" />
-
-            <Spinner
-                android:id="@+id/sp_run_mode"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.5"
-                android:entries="@array/run_Model" />
-
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tv_input_setting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:lineSpacingExtra="4dp"
-            android:maxLines="6"
-            android:scrollbars="vertical"
-            android:singleLine="false"
-            android:text=""
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/tv_model_img_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:lineSpacingExtra="4dp"
-            android:maxLines="6"
-            android:scrollbars="vertical"
-            android:singleLine="false"
-            android:text=""
-            android:visibility="gone" />
-
-        <!-- ImageView para mostrar la imagen, collage o resultados -->
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_marginVertical="8dp"
-            android:background="#EEE"
-            android:scaleType="fitCenter" />
-
-        <!-- Área para mostrar el output con fondo negro y texto blanco -->
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="#000000"
-            android:padding="8dp">
-            <TextView
-                android:id="@+id/tv_results"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Output"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp" />
-        </ScrollView>
-    </LinearLayout>
-</ScrollView>
+    <TextView
+        android:id="@+id/tv_folder_output"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Output"
+        android:textColor="#FFFFFF"
+        android:background="#000000"
+        android:padding="8dp"
+        android:layout_marginTop="8dp" />
+</LinearLayout>
